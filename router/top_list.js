@@ -1,3 +1,5 @@
+const schedule =require('node-schedule');
+
 const top_list_all = {
   '0': ['云音乐新歌榜', '/api/playlist/detail?id=3779629'],
   '1': ['云音乐热歌榜', '/api/playlist/detail?id=3778678'],
@@ -26,13 +28,26 @@ const express = require('express')
 const router = express()
 const { createRequest } = require('../util/util')
 
+let rank = {};
+const rule = new schedule.RecurrenceRule(); // schedule定时器
+rule.hour = 0;
+rule.minute = 0;
+rule.second = 0;
+const job = schedule.scheduleJob(rule, () => {
+  rank = {};
+});
 router.get('/', (req, res) => {
-  const idx = req.query.idx
+  const idx = req.query.idx;
+  if (rank[idx]) {
+    res.send(rank)
+    return;
+  }
   const action = 'http://music.163.com' + top_list_all[idx][1]
   createRequest(`${action}`, 'GET', null)
     .then(result => {
-      res.setHeader('Content-Type', 'application/json')
-      res.send(result)
+      rank[idx] = result;
+      res.setHeader('Content-Type', 'application/json');
+      res.send(result);
     })
     .catch(err => {
       res.status(502).send('fetch error')
