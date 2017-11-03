@@ -26,8 +26,9 @@
     "big-integer": "^1.6.17",
     "cors": "^2.8.4",
     "express": "^4.15.2",
-    "request": "^2.81.0",
-    "node-schedule": "^1.2.5"
+    "node-schedule": "^1.2.5",
+    "pinyin": "^2.8.3",
+    "request": "^2.81.0"
   },
   "devDependencies": {
     "husky": "^0.14.3",
