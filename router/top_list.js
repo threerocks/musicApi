@@ -35,23 +35,33 @@ rule.minute = 0;
 rule.second = 0;
 const job = schedule.scheduleJob(rule, () => {
   rank = {};
+  getRankList();
 });
 router.get('/', (req, res) => {
-  const idx = req.query.idx;
-  if (rank[idx]) {
-    res.send(rank)
-    return;
-  }
-  const action = 'http://music.163.com' + top_list_all[idx][1]
-  createRequest(`${action}`, 'GET', null)
-    .then(result => {
-      rank[idx] = result;
-      res.setHeader('Content-Type', 'application/json');
-      res.send(result);
-    })
-    .catch(err => {
-      res.status(502).send('fetch error')
-    })
+  res.send(rank[req.query.idx]);
 })
 
+const ids = [0, 1, 3, 7, 8, 14, 15, 17, 18, 20];
+function getRank(id) {
+  const action = 'http://music.163.com' + top_list_all[id][1]
+  return createRequest(`${action}`, 'GET', null)
+    .then(result => {
+      return result;
+    })
+    .catch(err => {
+      throw new Error(err);
+    })
+}
+function getRankList() {
+  const promises = [];
+  for (const id of ids) {
+    promises.push(getRank(id))
+  }
+  Promise.all(promises).then((res) => {
+    for (let i = 0; i < res.length; i++) {
+      rank[ids[i]] = res[i];
+    }
+  })
+}
+getRankList();
 module.exports = router
