@@ -59,7 +59,14 @@ function getRankList() {
   }
   Promise.all(promises).then((res) => {
     for (let i = 0; i < res.length; i++) {
-      rank[ids[i]] = res[i];
+      let data = {};
+      if (res[i] && typeof res[i] === 'string') {
+        data = JSON.parse(res[i]);
+      } else {
+        data = res[i];
+      }
+      data.result.tracks = data.result.tracks.slice(0, 30);
+      rank[ids[i]] = data;
     }
   })
 }
